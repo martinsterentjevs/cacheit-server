@@ -1,4 +1,3 @@
-* text=auto
-*.png binary
-*.jpg binary
-*.ico binary
+/gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary

@@ -1,26 +1,40 @@
-# Gradle
-.gradle/
+HELP.md
+.gradle
 build/
-out/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# IntelliJ
-.idea/
-*.iml
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
 *.iws
+*.iml
 *.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
-# Environment
-.env
-*.pem
-*.key
-secrets/
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 
-# OS
-.DS_Store
-Thumbs.db
+### VS Code ###
+.vscode/
 
-# Test output
-TestResults/
-
-# Logs
-*.log
+### Kotlin ###
+.kotlin
