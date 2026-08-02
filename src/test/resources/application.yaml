@@ -1,0 +1,6 @@
+JWT_SECRET: test-only-secret-key-do-not-use-in-production-32chars-min
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
