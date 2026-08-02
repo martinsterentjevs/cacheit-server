@@ -1,4 +1,6 @@
 package com.martinsterentjevs.cacheit.models.auth
 
-class SessionResult {
-}
+data class TokenPair(
+    val accessToken: String,
+    val refreshToken: String
+)

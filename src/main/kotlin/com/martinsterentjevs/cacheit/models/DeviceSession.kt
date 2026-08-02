@@ -9,24 +9,27 @@ import jakarta.persistence.Table
 import org.springframework.data.jpa.repository.JpaRepository
 import java.time.Instant
 import java.util.UUID
+
 @Entity
 @Table(name = "device_sessions")
-class DeviceSession (
+class DeviceSession(
     @Id
     var deviceId: UUID = UUID.randomUUID(),
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id",nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     var account: Account,
     var deviceName: String?,
     var refreshToken: String,
     var lastSeenAt: Instant = Instant.now(),
-    var createdAt: Instant = Instant.now(),
-    ){
-    override fun equals(other: Any?): Boolean =
-        this === other || (other is DeviceSession && deviceId == other.deviceId)
+    var createdAt: Instant = Instant.now()
+) {
+    override fun equals(other: Any?): Boolean = this === other || (other is DeviceSession && deviceId == other.deviceId)
 
     override fun hashCode(): Int = deviceId.hashCode()
 }
 
-interface DeviceSessionRepository : JpaRepository<DeviceSession,UUID>
+interface DeviceSessionRepository : JpaRepository<DeviceSession, UUID> {
+    fun findByDeviceId(deviceId: UUID): DeviceSession?
+
+    fun findByRefreshToken(refreshToken: String): DeviceSession?
+}
