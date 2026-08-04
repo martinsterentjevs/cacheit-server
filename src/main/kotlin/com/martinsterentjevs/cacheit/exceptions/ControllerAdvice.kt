@@ -56,6 +56,27 @@ class ControllerAdvice {
     fun handleMissingAuthHeader(ex: MissingRequestHeaderException): ErrorResponse =
         ErrorResponse("UNAUTHORIZED", "Authentication is required to access this resource.")
 
+    @ExceptionHandler(NoteOwnershipValidationException::class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    fun handleOwnershipMismatch(ex: NoteOwnershipValidationException): ErrorResponse =
+        ErrorResponse("FORBIDDEN", ex.message ?: "Note requested does not belong to the requestor")
+
+    @ExceptionHandler(NoteNotFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleNoteNotFound(ex: NoteNotFoundException): ErrorResponse =
+        ErrorResponse("NOTE_NOT_FOUND", ex.message ?: "Note requested does not exist.")
+
+    @ExceptionHandler(NoteLockedException::class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    fun handleNoteLocked(ex: NoteLockedException): ErrorResponse =
+        ErrorResponse("NOTE_LOCKED", ex.message ?: "This note is currently locked by another device.")
+
+    // Was missing — new exception added alongside version history/restore endpoints.
+    @ExceptionHandler(NoteVersionNotFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleNoteVersionNotFound(ex: NoteVersionNotFoundException): ErrorResponse =
+        ErrorResponse("NOTE_VERSION_NOT_FOUND", ex.message ?: "Note version requested does not exist.")
+
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleUnexpected(ex: Exception): ErrorResponse {

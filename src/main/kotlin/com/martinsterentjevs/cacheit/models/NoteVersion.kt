@@ -23,6 +23,8 @@ class NoteVersion(
     var encTitle: String,
     @Column(columnDefinition = "TEXT")
     var encBody: String? = null,
+    @Column(columnDefinition = "TEXT")
+    var encDrawing: String?,
     var createdAt: Instant = Instant.now(),
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id", nullable = true)
@@ -34,4 +36,13 @@ class NoteVersion(
     override fun hashCode(): Int = versionId.hashCode()
 }
 
-interface NoteVersionRepository : JpaRepository<NoteVersion, UUID>
+interface NoteVersionRepository : JpaRepository<NoteVersion, UUID> {
+    fun save(version: NoteVersion): NoteVersion
+
+    // Single-current-version lookup. Used by NoteService's retireCurrentVersionAndSnapshot
+    fun findByNoteAndIsCurrentTrue(note: Note): NoteVersion?
+
+    fun findAllByNoteNoteIdOrderByCreatedAtDesc(noteId: UUID): List<NoteVersion>
+
+    fun deleteByCreatedAtBefore(cutoff: Instant): Long
+}

@@ -1,5 +1,6 @@
 ﻿package com.martinsterentjevs.cacheit.models
 
+import com.martinsterentjevs.cacheit.exceptions.NoteNotFoundException
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -38,4 +39,21 @@ class Note(
     override fun hashCode(): Int = noteId.hashCode()
 }
 
-interface NoteRepository : JpaRepository<Note, UUID>
+interface NoteRepository : JpaRepository<Note, UUID> {
+    fun save(note: Note): Note
+
+    // For normal listing (GET /notes) — filtered and ordered for display.
+    fun findAllByAccountUserIdAndIsDeletedFalseOrderByLastModifiedAtDesc(userId: UUID): List<Note>
+
+    // For sync (POST /notes/sync) — unfiltered, since the delta needs to see soft-deleted notes
+    // too (to populate SyncResponseDto.deletedIds), not just the ones a normal listing would show.
+    fun findAllByAccountUserId(userId: UUID): List<Note>
+
+    fun findByNoteId(noteId: UUID): Note = findByNoteIdAndIsDeletedFalse(noteId) ?: throw NoteNotFoundException()
+
+    fun findByNoteIdAndIsDeletedFalse(noteId: UUID): Note?
+
+    fun findAllByLockedByDeviceDeviceId(deviceId: UUID): List<Note>
+
+    fun findAllByLockedAtBefore(cutoff: Instant): List<Note>
+}

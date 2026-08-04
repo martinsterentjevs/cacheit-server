@@ -34,4 +34,6 @@ interface AccountRepository : JpaRepository<Account, UUID> {
         username: String?,
         email: String?
     ): Account?
+
+    fun findByUserId(userFromBearer: UUID): Account
 }
