@@ -1,2 +1,3 @@
 # Architecture
 This document holds the key points of the architecture, for more details see the [Decisions folder](decisions) or the [full project specification](https://github.com/martinsterentjevs/cacheit-spec)
+

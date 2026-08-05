@@ -22,7 +22,7 @@ class SecurityConfig {
             .formLogin { it.disable() }
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("/auth/**","/notes/**")
+                    .requestMatchers("/auth/**", "/notes/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated()
