@@ -187,12 +187,15 @@ class NoteService(
     }
 
     /** Loads the note and verifies ownership in one pass — one identity resolution per request. */
+    @Throws(NoteNotFoundException::class)
     private fun requireOwnedNote(
         noteId: UUID?,
         bearer: String
     ): Pair<Note, RequestIdentity> {
         if (noteId == null) throw NoteNotFoundException()
-        val note = noteRepository.findByNoteId(noteId)
+        val note =
+            noteRepository.findByNoteId(noteId)
+                ?: throw NoteNotFoundException()
         val identity = userService.getRequestIdentity(bearer)
         if (note.account.userId != identity.account.userId) {
             throw NoteOwnershipValidationException("The user trying to access this note is not its owner.")

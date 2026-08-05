@@ -49,7 +49,7 @@ interface NoteRepository : JpaRepository<Note, UUID> {
     // too (to populate SyncResponseDto.deletedIds), not just the ones a normal listing would show.
     fun findAllByAccountUserId(userId: UUID): List<Note>
 
-    fun findByNoteId(noteId: UUID): Note = findByNoteIdAndIsDeletedFalse(noteId) ?: throw NoteNotFoundException()
+    fun findByNoteId(noteId: UUID): Note? = findByNoteIdAndIsDeletedFalse(noteId) ?: throw NoteNotFoundException()
 
     fun findByNoteIdAndIsDeletedFalse(noteId: UUID): Note?
 

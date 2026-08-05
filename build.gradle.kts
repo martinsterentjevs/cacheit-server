@@ -63,5 +63,6 @@ allOpen {
 }
 
 tasks.withType<Test> {
+    maxParallelForks = 1
     useJUnitPlatform()
 }
