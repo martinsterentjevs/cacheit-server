@@ -48,4 +48,8 @@ class SessionService(
         if (session.account.userId != userId) throw InvalidSessionException("Invalid user id")
         deviceSessionRepo.delete(session)
     }
+
+    fun extractUserIdFromToken(auth: String): UUID = tokenService.extractUserIdFromToken(auth)
+
+    fun extractDeviceIdFromToken(auth: String): UUID? = tokenService.extractDeviceIdFromToken(auth)
 }

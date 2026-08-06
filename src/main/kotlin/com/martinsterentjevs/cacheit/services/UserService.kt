@@ -7,8 +7,10 @@ import com.martinsterentjevs.cacheit.dtos.session.RegisterDto
 import com.martinsterentjevs.cacheit.exceptions.AccountAlreadyExistsException
 import com.martinsterentjevs.cacheit.exceptions.InvalidCredentialsException
 import com.martinsterentjevs.cacheit.exceptions.InvalidRegistrationException
+import com.martinsterentjevs.cacheit.exceptions.InvalidTokenException
 import com.martinsterentjevs.cacheit.models.Account
 import com.martinsterentjevs.cacheit.models.AccountRepository
+import com.martinsterentjevs.cacheit.models.auth.RequestIdentity
 import com.martinsterentjevs.cacheit.models.auth.SessionResult
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -73,6 +75,16 @@ class UserService(
 
     fun logout(authorization: String) {
         sessionService.logout(authorization)
+    }
+
+    fun getRequestIdentity(auth: String): RequestIdentity {
+        val userId = sessionService.extractUserIdFromToken(auth)
+        val account =
+            accountRepository
+                .findById(userId)
+                .orElseThrow { InvalidTokenException("No account matches this token.") }
+        val deviceId = sessionService.extractDeviceIdFromToken(auth) ?: throw InvalidTokenException()
+        return RequestIdentity(account, deviceId)
     }
 
     private fun identifierProvided(

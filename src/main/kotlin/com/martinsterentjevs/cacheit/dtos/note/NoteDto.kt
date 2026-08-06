@@ -11,8 +11,6 @@ data class NoteDto(
     val encTitle: String,
     val encBody: String?,
     val encDrawing: String?,
-    // clear on drawing save
-    val lockedByDeviceId: UUID?,
-    // clear on drawing save
-    val lockedAt: Instant?
+    val lockedByDeviceId: UUID?, // clear on drawing save
+    val lockedAt: Instant? // clear on drawing save
 )

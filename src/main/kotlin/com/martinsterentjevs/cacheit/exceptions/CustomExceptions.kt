@@ -27,3 +27,23 @@ class InvalidRegistrationException(
 class AccountAlreadyExistsException(
     message: String = "Username or email is already in use."
 ) : RuntimeException(message)
+
+// Notes - Ownership mismatch. Fires when a NoteId is requested by a different user as per JWT claim.
+class NoteOwnershipValidationException(
+    message: String = "Note does not belong to user requesting it."
+) : RuntimeException(message)
+
+// Notes - not found.
+class NoteNotFoundException(
+    message: String = "Note requested does not exist."
+) : RuntimeException(message)
+
+// Notes - Drawing lock.
+class NoteLockedException(
+    message: String = "This note is currently locked by another device."
+) : RuntimeException(message)
+
+// Notes - Non-existent version. Thrown on calling a NoteVersion id that wasnt found
+class NoteVersionNotFoundException(
+    message: String = "This note version does not exist."
+) : RuntimeException(message)

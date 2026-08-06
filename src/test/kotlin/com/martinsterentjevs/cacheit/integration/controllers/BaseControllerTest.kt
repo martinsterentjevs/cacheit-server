@@ -1,6 +1,7 @@
 package com.martinsterentjevs.cacheit.integration.controllers
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.martinsterentjevs.cacheit.integration.BaseIntegrationTest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -28,7 +29,7 @@ abstract class BaseControllerTest : BaseIntegrationTest() {
 
         fun header(name: String): String? = result.response.getHeader(name)
 
-        inline fun <reified T> body(): T = parseBody(T::class.java)
+        internal inline fun <reified T> body(): T = objectMapper.readValue(rawBody)
 
         @PublishedApi
         internal fun <T> parseBody(type: Class<T>): T = objectMapper.readValue(rawBody, type)

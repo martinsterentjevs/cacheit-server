@@ -56,8 +56,7 @@ constraints — treat that as a bug, not a feature.
   account deletion.
 - Soft delete via nullable `deletedAt`. UUID primary keys. `java.time.Instant` maps to
   PostgreSQL `TIMESTAMPTZ`.
-- `enc_drawing` is a nullable `TEXT` column on notes, present in schema now, feature
-  deferred to v1.2. Do not build drawing logic yet.
+- `enc_drawing` is a nullable `TEXT` column on notes, present in schema now, feature present on android, desktop deferred. 
 - Voice notes are post-MVP (v1.1), separate table, need `BlobStorageService` abstraction
   over an S3-compatible backend (Garage or SeaweedFS — **not MinIO, archived April 2026**).
   Do not build this now.
@@ -103,17 +102,9 @@ gets retained under time pressure.
 
 ## 6. Current focus — update this section as work progresses
 
-**Issue 3: authentication layer** on `cacheit-server` —
-`UserService`, `SessionService`, `AuthController`, `TokenService`.
-
-- `UserService` is the orchestrator for all four auth flows (register, login, new-device
-  login, logout).
-- `TokenService` = token generation/validation only.
-- `SessionService` = session lifecycle only.
-- Logout **deletes** the `DeviceSession` row. There's no null-out path because
-  `refresh_token` is non-nullable — logout and device self-revocation are the same
-  operation. Don't add a "revoked" flag instead of deleting; that was already decided
-  against.
+** Issue 5: Note CRUD, sync and versioning.** Numbering by Github Issues tracker.
+- Issue 3: authentication layer** on `cacheit-server` —
+`UserService`, `SessionService`, `AuthController`, `TokenService` is complete. Do not disturb the authentication related functions
 - Issue 2 (JPA entities) is done. Don't re-litigate entity design — just consume it.
 
 *(Replace this section's contents each time you move to a new issue. Keep it to what
