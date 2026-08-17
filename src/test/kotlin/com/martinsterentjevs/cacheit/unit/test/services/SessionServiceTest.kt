@@ -124,7 +124,8 @@ class SessionServiceTest {
             username = "test-user",
             email = null,
             passwordHash = "password-hash",
-            mekEnvelope = "mek-envelope"
+            mekEnvelope = "mek-envelope",
+            kdfSalt = "test-kdf-salt"
         )
 
     private fun generateTestSession(
