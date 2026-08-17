@@ -4,6 +4,8 @@ import com.martinsterentjevs.cacheit.dtos.session.AccountSessionDto
 import com.martinsterentjevs.cacheit.dtos.session.LoginDto
 import com.martinsterentjevs.cacheit.dtos.session.RefreshRequestDto
 import com.martinsterentjevs.cacheit.dtos.session.RegisterDto
+import com.martinsterentjevs.cacheit.dtos.session.SaltLookupDto
+import com.martinsterentjevs.cacheit.dtos.session.SaltResponseDto
 import com.martinsterentjevs.cacheit.exceptions.AccountAlreadyExistsException
 import com.martinsterentjevs.cacheit.exceptions.InvalidCredentialsException
 import com.martinsterentjevs.cacheit.exceptions.InvalidRegistrationException
@@ -12,14 +14,22 @@ import com.martinsterentjevs.cacheit.models.Account
 import com.martinsterentjevs.cacheit.models.AccountRepository
 import com.martinsterentjevs.cacheit.models.auth.RequestIdentity
 import com.martinsterentjevs.cacheit.models.auth.SessionResult
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import java.util.Base64
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 @Service
 class UserService(
     private val accountRepository: AccountRepository,
     private val sessionService: SessionService,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    @Value("\${HMAC_SECRET}")
+    private val hmacKey: String,
+    @Value("\${IS_SINGLE_USER:false}")
+    private val isSingleUser: Boolean
 ) {
     fun authenticateUser(login: LoginDto): AccountSessionDto {
         val account =
@@ -58,9 +68,10 @@ class UserService(
                 accountHolder = registration.accountHolder,
                 username = registration.username,
                 email = registration.email,
-                passwordHash = hashPassword(registration.password),
+                passwordHash = hashPassword(registration.authHash),
                 mekEnvelope = registration.encMekEnvelope,
-                isSingleUser = false
+                kdfSalt = registration.kdfSalt,
+                isSingleUser = isSingleUser
             )
         val savedAccount = accountRepository.save(account)
         val session = sessionService.initiateNewSession(savedAccount, registration.deviceId, registration.deviceName)
@@ -85,6 +96,31 @@ class UserService(
                 .orElseThrow { InvalidTokenException("No account matches this token.") }
         val deviceId = sessionService.extractDeviceIdFromToken(auth) ?: throw InvalidTokenException()
         return RequestIdentity(account, deviceId)
+    }
+
+    fun getSaltById(saltRequest: SaltLookupDto): SaltResponseDto {
+        val account = accountRepository.findByUsernameOrEmail(saltRequest.identifier, saltRequest.identifier)
+        if (account == null) {
+            return SaltResponseDto(
+                kdfSalt = getFakeSalt(saltRequest.identifier)
+            )
+        } else {
+            return SaltResponseDto(
+                kdfSalt = account.kdfSalt
+            )
+        }
+    }
+
+    private fun getFakeSalt(identifier: String): String {
+        val algorithm = "HmacSHA256"
+        val mac = Mac.getInstance(algorithm)
+        val key = SecretKeySpec(hmacKey.toByteArray(Charsets.UTF_8), algorithm)
+
+        mac.init(key)
+
+        return Base64.getEncoder().encodeToString(
+            mac.doFinal(identifier.toByteArray(Charsets.UTF_8))
+        )
     }
 
     private fun identifierProvided(

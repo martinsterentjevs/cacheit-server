@@ -1,4 +1,5 @@
 JWT_SECRET: test-only-secret-key-do-not-use-in-production-32chars-min
+HMAC_SECRET: test-hmac-for-fake-key-generation-do-not-use-outside
 
 spring:
   jpa:

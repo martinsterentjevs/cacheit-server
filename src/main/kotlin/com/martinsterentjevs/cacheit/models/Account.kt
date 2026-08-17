@@ -21,6 +21,7 @@ class Account(
     // A KDF derived hash of the MUK that gets hashed again, see spec ADR-0004-Auth-hash-separation.md
     var passwordHash: String,
     var mekEnvelope: String,
+    var kdfSalt: String,
     var createdAt: Instant = Instant.now(),
     var isSingleUser: Boolean = false
 ) {
