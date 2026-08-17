@@ -13,9 +13,9 @@ data class RegisterDto(
     val username: String?,
     @field:Email(message = "Must be a valid email address")
     val email: String?,
+    // field length validation no longer relevant as it is a hash
     @field:NotBlank
-    @field:Size(min = 8, message = "Password must be at least 8 characters")
-    val password: String,
+    val authHash: String,
     val deviceId: UUID,
     @field:NotBlank
     val deviceName: String,
@@ -24,5 +24,11 @@ data class RegisterDto(
         regexp = "^[A-Za-z0-9+/]+={0,2}$",
         message = "MEK envelope must be valid base64"
     )
-    val encMekEnvelope: String
+    val encMekEnvelope: String,
+    @field:NotBlank(message = "kdfSalt is required")
+    @field:Pattern(
+        regexp = "^[A-Za-z0-9+/]+={0,2}$",
+        message = "MEK envelope must be valid base64"
+    )
+    val kdfSalt: String
 )

@@ -29,7 +29,14 @@ class UserServiceTest {
     private val sessionService = mockk<SessionService>()
     private val passwordEncoder = mockk<PasswordEncoder>()
 
-    private val userService = UserService(accountRepository, sessionService, passwordEncoder)
+    private val userService =
+        UserService(
+            accountRepository,
+            sessionService,
+            passwordEncoder,
+            "",
+            false
+        )
 
     // -- registerUser --
 
@@ -40,9 +47,9 @@ class UserServiceTest {
 
         userService.registerUser(registration)
 
-        verify(exactly = 1) { passwordEncoder.encode(registration.password) }
+        verify(exactly = 1) { passwordEncoder.encode(registration.authHash) }
         assertThat(savedAccount.captured.passwordHash).isEqualTo(PASSWORD_HASH)
-        assertThat(savedAccount.captured.passwordHash).isNotEqualTo(registration.password)
+        assertThat(savedAccount.captured.passwordHash).isNotEqualTo(registration.authHash)
     }
 
     @Test
@@ -71,7 +78,7 @@ class UserServiceTest {
     fun `registerUser rejects a duplicate username or email`() {
         val registration = AccountTestDataFactory.validRegistrationRequest()
         every { accountRepository.findByUsernameOrEmail(registration.username, registration.email) } returns
-            generateTestAccount()
+                generateTestAccount()
 
         assertThrows<AccountAlreadyExistsException> { userService.registerUser(registration) }
 
@@ -102,7 +109,7 @@ class UserServiceTest {
     @Test
     fun `authenticateUser succeeds when identifier matches username`() {
         val account = generateTestAccount(username = "test-user", email = null)
-        val login = AccountTestDataFactory.validLoginRequest(account.username!!)
+        val login = AccountTestDataFactory.validLoginRequest(account.username!!,account.kdfSalt)
         stubSuccessfulAuthentication(login, account)
 
         val result = userService.authenticateUser(login)
@@ -113,7 +120,7 @@ class UserServiceTest {
     @Test
     fun `authenticateUser succeeds when identifier matches email`() {
         val account = generateTestAccount(username = null, email = "test@example.com")
-        val login = AccountTestDataFactory.validLoginRequest(account.email!!)
+        val login = AccountTestDataFactory.validLoginRequest(account.email!!,account.kdfSalt)
         stubSuccessfulAuthentication(login, account)
 
         val result = userService.authenticateUser(login)
@@ -123,7 +130,10 @@ class UserServiceTest {
 
     @Test
     fun `authenticateUser rejects an unknown identifier`() {
-        val login = AccountTestDataFactory.badIdentifierLoginRequest()
+        val login = AccountTestDataFactory.badIdentifierLoginRequest(
+            identifier = "not-an-email-or-username",
+            salt = "fake-salt"
+        )
         every { accountRepository.findByUsernameOrEmail(login.identifier, login.identifier) } returns null
 
         assertThrows<InvalidCredentialsException> { userService.authenticateUser(login) }
@@ -135,7 +145,10 @@ class UserServiceTest {
     @Test
     fun `authenticateUser rejects a wrong password`() {
         val account = generateTestAccount()
-        val login = AccountTestDataFactory.badPasswordLoginRequest(account.username!!)
+        val login = AccountTestDataFactory.badPasswordLoginRequest(
+                identifier = account.username!!,
+        salt = account.kdfSalt
+        )
         every { accountRepository.findByUsernameOrEmail(login.identifier, login.identifier) } returns account
         every { passwordEncoder.matches(login.password, account.passwordHash) } returns false
 
@@ -148,8 +161,12 @@ class UserServiceTest {
     fun `unknown identifier and wrong password produce the same exception type`() {
         // the generic-error-code guarantee — assert type equality, not just "both fail"
         val account = generateTestAccount()
-        val unknownLogin = AccountTestDataFactory.badIdentifierLoginRequest()
-        val wrongPasswordLogin = AccountTestDataFactory.badPasswordLoginRequest(account.username!!)
+        val unknownLogin = AccountTestDataFactory.badIdentifierLoginRequest("bad-identifer","some-salt")
+        val wrongPasswordLogin =
+        AccountTestDataFactory.badPasswordLoginRequest(
+            identifier = account.username!!,
+            salt = account.kdfSalt
+        )
         every {
             accountRepository.findByUsernameOrEmail(unknownLogin.identifier, unknownLogin.identifier)
         } returns null
@@ -195,7 +212,7 @@ class UserServiceTest {
     private fun stubSuccessfulRegistration(registration: RegisterDto): CapturingSlot<Account> {
         val savedAccount = slot<Account>()
         every { accountRepository.findByUsernameOrEmail(registration.username, registration.email) } returns null
-        every { passwordEncoder.encode(registration.password) } returns PASSWORD_HASH
+        every { passwordEncoder.encode(registration.authHash) } returns PASSWORD_HASH
         every { accountRepository.save(capture(savedAccount)) } answers { savedAccount.captured }
         every {
             sessionService.initiateNewSession(any(), registration.deviceId, registration.deviceName)
@@ -223,7 +240,9 @@ class UserServiceTest {
             username = username,
             email = email,
             passwordHash = PASSWORD_HASH,
-            mekEnvelope = MEK_ENVELOPE
+            mekEnvelope = MEK_ENVELOPE,
+            kdfSalt = "test-kdf-salt",
+            isSingleUser = false
         )
 
     private fun generateSessionResult(
