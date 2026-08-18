@@ -3,7 +3,7 @@ services:
     build: .
     container_name: cacheit-server
     ports:
-      - "9001:9001"
+      - "9001:8080"
     env_file:
       - .env
     environment:
