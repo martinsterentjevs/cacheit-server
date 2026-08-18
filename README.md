@@ -32,9 +32,20 @@ git clone https://github.com/martinsterentjevs/cacheit-server.git
 cd cacheit-server
 cp .env.example .env
 # configure .env with your PostgreSQL credentials
+# replace the secret values by using random base64 strings
+# for example `openssl rand -base64 32 `
 ./gradlew bootRun
 ```
-
+Using Docker:
+```bash
+git clone https://github.com/martinsterentjevs/cacheit-server.git
+cd cacheit-server
+cp .env.example .env
+# configure .env with your PostgreSQL credentials
+# replace the secret values by using random base64 strings
+# for example `openssl rand -base64 32 `
+docker compose up --build
+```
 ## Links
 
 - [Contributing](CONTRIBUTING.md)

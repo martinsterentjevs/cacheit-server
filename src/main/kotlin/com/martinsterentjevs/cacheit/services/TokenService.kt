@@ -13,13 +13,13 @@ import javax.crypto.spec.SecretKeySpec
 
 @Service
 class TokenService(
-    @Value("\${JWT_SECRET}") private val secret: String
+    private val secretsManager: SecretsManager,
 ) {
     init {
-        require(secret.length >= 32) { "JWT_SECRET must be at least 32 characters long" }
+        require(secretsManager.getJwtSecret().length >= 32) { "JWT_SECRET must be at least 32 characters long" }
     }
 
-    private val signingKey = SecretKeySpec(secret.toByteArray(), "HmacSHA256")
+    private val signingKey = SecretKeySpec(secretsManager.getJwtSecret().toByteArray(), "HmacSHA256")
 
     private val ttl = 3600L
 
