@@ -4,7 +4,6 @@ import com.martinsterentjevs.cacheit.exceptions.InvalidTokenException
 import com.martinsterentjevs.cacheit.models.auth.TokenPair
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.security.SecureRandom
 import java.time.Instant
@@ -14,12 +13,13 @@ import javax.crypto.spec.SecretKeySpec
 @Service
 class TokenService(
     private val secretsManager: SecretsManager,
+    private val secret:String = secretsManager.getJwtSecret()
 ) {
     init {
-        require(secretsManager.getJwtSecret().length >= 32) { "JWT_SECRET must be at least 32 characters long" }
+        require(secret.length >= 32) { "JWT_SECRET must be at least 32 characters long" }
     }
 
-    private val signingKey = SecretKeySpec(secretsManager.getJwtSecret().toByteArray(), "HmacSHA256")
+    private val signingKey = SecretKeySpec(secret.toByteArray(), "HmacSHA256")
 
     private val ttl = 3600L
 

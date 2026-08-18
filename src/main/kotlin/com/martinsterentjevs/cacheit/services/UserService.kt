@@ -14,7 +14,6 @@ import com.martinsterentjevs.cacheit.models.Account
 import com.martinsterentjevs.cacheit.models.AccountRepository
 import com.martinsterentjevs.cacheit.models.auth.RequestIdentity
 import com.martinsterentjevs.cacheit.models.auth.SessionResult
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.Base64
@@ -26,14 +25,14 @@ class UserService(
     private val accountRepository: AccountRepository,
     private val sessionService: SessionService,
     private val passwordEncoder: PasswordEncoder,
-    private val secretsManager: SecretsManager
+    private val secretsManager: SecretsManager,
 ) {
     fun authenticateUser(login: LoginDto): AccountSessionDto {
         val account =
             accountRepository.findByUsernameOrEmail(login.identifier, login.identifier)
                 ?: throw InvalidCredentialsException("Invalid credentials")
         if (!passwordEncoder.matches(
-                login.password,
+                login.authHash,
                 account.passwordHash
             )
         ) {

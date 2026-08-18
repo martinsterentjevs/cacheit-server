@@ -2,7 +2,9 @@ package com.martinsterentjevs.cacheit.unit.test.services
 
 import com.martinsterentjevs.cacheit.exceptions.InvalidTokenException
 import com.martinsterentjevs.cacheit.models.auth.TokenPair
+import com.martinsterentjevs.cacheit.services.SecretsManager
 import com.martinsterentjevs.cacheit.services.TokenService
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -10,7 +12,8 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 class TokenServiceTest {
-    private val tokenService = TokenService(secret = "test-secret-at-least-32-characters-long")
+    private val secretsManager = mockk<SecretsManager>()
+    private val tokenService = TokenService(secretsManager,secret = "test-secret-at-least-32-characters-long")
 
     @Test
     fun `generateSessionTokens returns a valid jwt and a distinct opaque refresh token`() {
@@ -42,7 +45,7 @@ class TokenServiceTest {
 
     @Test
     fun `signing key construction fails fast when secret is under 32 characters`() {
-        assertThrows(IllegalArgumentException::class.java) { TokenService(secret = "short") }
+        assertThrows(IllegalArgumentException::class.java) { TokenService(secretsManager,secret = "short") }
     }
 
     // Helper functions

@@ -10,6 +10,7 @@ import com.martinsterentjevs.cacheit.models.AccountRepository
 import com.martinsterentjevs.cacheit.models.DeviceSession
 import com.martinsterentjevs.cacheit.models.auth.SessionResult
 import com.martinsterentjevs.cacheit.models.auth.TokenPair
+import com.martinsterentjevs.cacheit.services.SecretsManager
 import com.martinsterentjevs.cacheit.services.SessionService
 import com.martinsterentjevs.cacheit.services.UserService
 import com.martinsterentjevs.cacheit.testdata.AccountTestDataFactory
@@ -28,16 +29,18 @@ class UserServiceTest {
     private val accountRepository = mockk<AccountRepository>()
     private val sessionService = mockk<SessionService>()
     private val passwordEncoder = mockk<PasswordEncoder>()
-
-    private val userService =
+    private val secretsManager = mockk<SecretsManager>()
+    private val userService: UserService
+    init {
+    every { secretsManager.isSingleUser() } returns false
+    userService =
         UserService(
             accountRepository,
             sessionService,
             passwordEncoder,
-            "",
-            false
+            secretsManager
         )
-
+}
     // -- registerUser --
 
     @Test
@@ -78,7 +81,7 @@ class UserServiceTest {
     fun `registerUser rejects a duplicate username or email`() {
         val registration = AccountTestDataFactory.validRegistrationRequest()
         every { accountRepository.findByUsernameOrEmail(registration.username, registration.email) } returns
-                generateTestAccount()
+            generateTestAccount()
 
         assertThrows<AccountAlreadyExistsException> { userService.registerUser(registration) }
 
@@ -109,7 +112,7 @@ class UserServiceTest {
     @Test
     fun `authenticateUser succeeds when identifier matches username`() {
         val account = generateTestAccount(username = "test-user", email = null)
-        val login = AccountTestDataFactory.validLoginRequest(account.username!!,account.kdfSalt)
+        val login = AccountTestDataFactory.validLoginRequest(account.username!!, account.kdfSalt)
         stubSuccessfulAuthentication(login, account)
 
         val result = userService.authenticateUser(login)
@@ -120,7 +123,7 @@ class UserServiceTest {
     @Test
     fun `authenticateUser succeeds when identifier matches email`() {
         val account = generateTestAccount(username = null, email = "test@example.com")
-        val login = AccountTestDataFactory.validLoginRequest(account.email!!,account.kdfSalt)
+        val login = AccountTestDataFactory.validLoginRequest(account.email!!, account.kdfSalt)
         stubSuccessfulAuthentication(login, account)
 
         val result = userService.authenticateUser(login)
@@ -130,10 +133,11 @@ class UserServiceTest {
 
     @Test
     fun `authenticateUser rejects an unknown identifier`() {
-        val login = AccountTestDataFactory.badIdentifierLoginRequest(
-            identifier = "not-an-email-or-username",
-            salt = "fake-salt"
-        )
+        val login =
+            AccountTestDataFactory.badIdentifierLoginRequest(
+                identifier = "not-an-email-or-username",
+                salt = "fake-salt"
+            )
         every { accountRepository.findByUsernameOrEmail(login.identifier, login.identifier) } returns null
 
         assertThrows<InvalidCredentialsException> { userService.authenticateUser(login) }
@@ -145,12 +149,13 @@ class UserServiceTest {
     @Test
     fun `authenticateUser rejects a wrong password`() {
         val account = generateTestAccount()
-        val login = AccountTestDataFactory.badPasswordLoginRequest(
+        val login =
+            AccountTestDataFactory.badPasswordLoginRequest(
                 identifier = account.username!!,
-        salt = account.kdfSalt
-        )
+                salt = account.kdfSalt
+            )
         every { accountRepository.findByUsernameOrEmail(login.identifier, login.identifier) } returns account
-        every { passwordEncoder.matches(login.password, account.passwordHash) } returns false
+        every { passwordEncoder.matches(login.authHash, account.passwordHash) } returns false
 
         assertThrows<InvalidCredentialsException> { userService.authenticateUser(login) }
 
@@ -161,19 +166,19 @@ class UserServiceTest {
     fun `unknown identifier and wrong password produce the same exception type`() {
         // the generic-error-code guarantee — assert type equality, not just "both fail"
         val account = generateTestAccount()
-        val unknownLogin = AccountTestDataFactory.badIdentifierLoginRequest("bad-identifer","some-salt")
+        val unknownLogin = AccountTestDataFactory.badIdentifierLoginRequest("bad-identifer", "some-salt")
         val wrongPasswordLogin =
-        AccountTestDataFactory.badPasswordLoginRequest(
-            identifier = account.username!!,
-            salt = account.kdfSalt
-        )
+            AccountTestDataFactory.badPasswordLoginRequest(
+                identifier = account.username!!,
+                salt = account.kdfSalt
+            )
         every {
             accountRepository.findByUsernameOrEmail(unknownLogin.identifier, unknownLogin.identifier)
         } returns null
         every {
             accountRepository.findByUsernameOrEmail(wrongPasswordLogin.identifier, wrongPasswordLogin.identifier)
         } returns account
-        every { passwordEncoder.matches(wrongPasswordLogin.password, account.passwordHash) } returns false
+        every { passwordEncoder.matches(wrongPasswordLogin.authHash, account.passwordHash) } returns false
 
         val unknownIdentifierFailure =
             assertThrows<InvalidCredentialsException> { userService.authenticateUser(unknownLogin) }
@@ -225,7 +230,7 @@ class UserServiceTest {
         account: Account
     ) {
         every { accountRepository.findByUsernameOrEmail(login.identifier, login.identifier) } returns account
-        every { passwordEncoder.matches(login.password, account.passwordHash) } returns true
+        every { passwordEncoder.matches(login.authHash, account.passwordHash) } returns true
         every {
             sessionService.initiateNewSession(account, login.deviceId, login.deviceName)
         } returns generateSessionResult(account, login.deviceId, login.deviceName)

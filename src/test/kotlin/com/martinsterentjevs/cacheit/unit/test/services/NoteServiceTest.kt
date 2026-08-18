@@ -324,10 +324,10 @@ class NoteServiceTest {
         val note = testNote()
         stubOwnedNote(note)
         every { noteVersionRepository.findAllByNoteNoteIdOrderByCreatedAtDesc(note.noteId) } returns
-                listOf(
-                    NoteVersion(note = note, encTitle = "V1", encBody = null, encDrawing = null, isCurrent = false),
-                    NoteVersion(note = note, encTitle = "V2", encBody = null, encDrawing = null, isCurrent = true)
-                )
+            listOf(
+                NoteVersion(note = note, encTitle = "V1", encBody = null, encDrawing = null, isCurrent = false),
+                NoteVersion(note = note, encTitle = "V2", encBody = null, encDrawing = null, isCurrent = true)
+            )
 
         assertEquals(2, noteService.getVersionHistory(note.noteId, "bearer").size)
     }

@@ -329,6 +329,7 @@ class AuthControllerIntegrationTest : BaseControllerTest() {
         ).expectStatus(HttpStatus.OK)
             .body<SaltResponseDto>()
             .kdfSalt
+
     @Test
     fun `salt lookup has roughly similar timing for known and unknown identifiers`() {
         val registration = validRegistrationRequest()
@@ -359,11 +360,11 @@ class AuthControllerIntegrationTest : BaseControllerTest() {
         assertThat(slower.toDouble() / faster.toDouble())
             .withFailMessage(
                 "Salt lookup timing differs too much: " +
-                        "known median=${knownMedian / 1_000_000.0}ms, " +
-                        "unknown median=${unknownMedian / 1_000_000.0}ms"
-            )
-            .isLessThan(5.0)
+                    "known median=${knownMedian / 1_000_000.0}ms, " +
+                    "unknown median=${unknownMedian / 1_000_000.0}ms"
+            ).isLessThan(5.0)
     }
+
     private fun measureSaltLookup(
         identifier: String,
         samples: Int = 25

@@ -6,6 +6,7 @@ import com.martinsterentjevs.cacheit.exceptions.InvalidTokenException
 import com.martinsterentjevs.cacheit.models.Account
 import com.martinsterentjevs.cacheit.models.DeviceSession
 import com.martinsterentjevs.cacheit.models.DeviceSessionRepository
+import com.martinsterentjevs.cacheit.services.SecretsManager
 import com.martinsterentjevs.cacheit.services.SessionService
 import com.martinsterentjevs.cacheit.services.TokenService
 import io.mockk.CapturingSlot
@@ -20,7 +21,8 @@ import java.util.UUID
 
 class SessionServiceTest {
     private val deviceSessionRepo = mockk<DeviceSessionRepository>()
-    private val tokenService = TokenService(secret = "test-secret-at-least-32-characters-long")
+    private val secretsManager = mockk<SecretsManager>()
+    private val tokenService = TokenService(secretsManager,secret = "test-secret-at-least-32-characters-long")
     private val sessionService = SessionService(deviceSessionRepo, tokenService)
 
     @Test

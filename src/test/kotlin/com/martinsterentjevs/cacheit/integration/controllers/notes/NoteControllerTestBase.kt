@@ -26,16 +26,17 @@ abstract class NoteControllerTestBase : BaseControllerTest() {
         registration: RegisterDto,
         deviceId: UUID = UUID.randomUUID()
     ): AccountSessionDto {
-        val email = registration.email
-            ?: throw IllegalArgumentException("Test registration must have an email")
+        val email =
+            registration.email
+                ?: throw IllegalArgumentException("Test registration must have an email")
 
-        val salt = post(
-            "/auth/salt",
-            AccountTestDataFactory.newSaltLookupRequest(email)
-        )
-            .expectStatus(HttpStatus.OK)
-            .body<com.martinsterentjevs.cacheit.dtos.session.SaltResponseDto>()
-            .kdfSalt
+        val salt =
+            post(
+                "/auth/salt",
+                AccountTestDataFactory.newSaltLookupRequest(email)
+            ).expectStatus(HttpStatus.OK)
+                .body<com.martinsterentjevs.cacheit.dtos.session.SaltResponseDto>()
+                .kdfSalt
 
         val loginRequest =
             AccountTestDataFactory.validLoginRequest(

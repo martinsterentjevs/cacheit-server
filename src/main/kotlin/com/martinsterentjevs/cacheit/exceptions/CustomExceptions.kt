@@ -48,12 +48,13 @@ class NoteVersionNotFoundException(
     message: String = "This note version does not exist."
 ) : RuntimeException(message)
 
-//Secrets exceptions
+// Secrets exceptions
 // Secret - Not found
 class SecretNotFoundException(
     message: String = "Secret not found."
 ) : RuntimeException(message + "Check your environment variables")
-//Secret - Not valid
+
+// Secret - Not valid
 class SecretValidationException(
     message: String = "Secret validation failed."
 ) : RuntimeException(message)

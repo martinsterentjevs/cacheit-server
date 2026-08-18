@@ -2,14 +2,13 @@ package com.martinsterentjevs.cacheit.services
 
 import com.martinsterentjevs.cacheit.exceptions.SecretNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
-
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
 
 @Service
 class SecretsManager(
     @Autowired val environment: Environment
-    ) {
+) {
     init {
         require(getHmacSecret().isNotEmpty()) { "HMAC_SECRET cannot be empty" }
         require(getJwtSecret().isNotEmpty()) { "JWT_SECRET cannot be empty" }

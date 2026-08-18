@@ -1,3 +1,13 @@
+JWT_SECRET: test-only-secret-key-do-not-use-in-production-32chars-min
+HMAC_SECRET: test-hmac-for-fake-key-generation-do-not-use-outside
+
+# Server mode
+IS_SINGLE_USER: false
+
+POSTGRES_DB: CacheIt
+POSTGRES_USER: CacheItApp
+POSTGRES_PASSWORD: CacheItAppPassword123!
+
 spring:
   jpa:
     hibernate:
