@@ -26,10 +26,7 @@ class UserService(
     private val accountRepository: AccountRepository,
     private val sessionService: SessionService,
     private val passwordEncoder: PasswordEncoder,
-    @Value("\${HMAC_SECRET}")
-    private val hmacKey: String,
-    @Value("\${IS_SINGLE_USER:false}")
-    private val isSingleUser: Boolean
+    private val secretsManager: SecretsManager
 ) {
     fun authenticateUser(login: LoginDto): AccountSessionDto {
         val account =
@@ -71,7 +68,7 @@ class UserService(
                 passwordHash = hashPassword(registration.authHash),
                 mekEnvelope = registration.encMekEnvelope,
                 kdfSalt = registration.kdfSalt,
-                isSingleUser = isSingleUser
+                isSingleUser = secretsManager.isSingleUser()
             )
         val savedAccount = accountRepository.save(account)
         val session = sessionService.initiateNewSession(savedAccount, registration.deviceId, registration.deviceName)
@@ -114,6 +111,7 @@ class UserService(
     private fun getFakeSalt(identifier: String): String {
         val algorithm = "HmacSHA256"
         val mac = Mac.getInstance(algorithm)
+        val hmacKey = secretsManager.getHmacSecret()
         val key = SecretKeySpec(hmacKey.toByteArray(Charsets.UTF_8), algorithm)
 
         mac.init(key)

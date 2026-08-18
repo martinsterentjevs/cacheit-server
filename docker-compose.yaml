@@ -1,15 +1,30 @@
 services:
+  app:
+    build: .
+    container_name: cacheit-server
+    ports:
+      - "9001:9001"
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:15-alpine
     container_name: cacheit-db
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_DB: cacheit
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+    env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
 
 volumes:
   postgres_data:
