@@ -1,5 +1,5 @@
 # Note reference
-Created: 02/08/2026 Last updated: 04/08/2026
+Created: 02/08/2026 Last updated: 19/08/2026
 
 ## Overview
 This document outlines the interactions of services and `NoteController` to fulfill the note CRUD,
@@ -44,7 +44,7 @@ explicitly as a follow-up spec-repo item, not left ambiguous.
 ---
 
 ### Note creation (Add)
-Last updated: 02/08/2026
+Last updated: 19/08/2026
 
 ```mermaid
 graph LR
@@ -59,12 +59,12 @@ graph LR
 
 `NoteService.addNote()` resolves the caller's identity and device via
 `UserService.getRequestIdentity()`, persists the new `Note`, then immediately snapshots it as the
-first `NoteVersion` (`isCurrent = true`) via the shared `buildNoteVersion()` helper. Server assigns
-`noteId` and `userId` - the client never supplies either. Returns the created `NoteDto`, `201`.
+first `NoteVersion` (`isCurrent = true`) via the shared `buildNoteVersion()` helper. ~~Server assigns
+`noteId` and `userId` - the client never supplies either.~~ **NEW [19/08/2026]:** Server supplies `userId`, client supplies `noteId`  Returns the created `NoteDto`, `201`.
 
 #### Expected failures
 - `401` - invalid or missing access token.
-- `400 VALIDATION_ERROR` - **open item, unchanged:** `NoteDto` has no Bean Validation constraints yet.
+- `400 VALIDATION_ERROR` - Missing `noteId` or `encTitle`. 
 
 ---
 
