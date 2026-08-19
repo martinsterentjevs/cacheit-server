@@ -61,13 +61,14 @@ abstract class NoteControllerTestBase : BaseControllerTest() {
 
     protected fun noteDtoFor(
         noteId: UUID = UUID.randomUUID(),
+        userId: UUID = UUID.randomUUID(),
         encTitle: String = "Test note",
         encBody: String? = null,
         encDrawing: String? = null
     ): NoteDto =
         NoteDto(
             noteId = noteId,
-            userId = UUID.randomUUID(), // discarded server-side — server derives the real owner from the token
+            userId = userId, // discarded server-side — server derives the real owner from the token
             lastModifiedAt = Instant.now(),
             isDeleted = false,
             encTitle = encTitle,

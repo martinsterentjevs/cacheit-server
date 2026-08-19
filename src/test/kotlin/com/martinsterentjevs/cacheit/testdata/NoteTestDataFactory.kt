@@ -14,7 +14,7 @@ object NoteTestDataFactory {
     private fun randomUserId() = UUID.randomUUID()
 
     fun validNote(
-        noteId: UUID? = null,
+        noteId: UUID = UUID.randomUUID(),
         userId: UUID = randomUserId(),
         lastModifiedAt: Instant = Instant.now(),
         isDeleted: Boolean = false,
