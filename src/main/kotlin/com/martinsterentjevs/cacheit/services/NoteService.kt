@@ -51,6 +51,7 @@ class NoteService(
 
         val note =
             Note(
+                noteId = noteDto.noteId,
                 account = identity.account,
                 encTitle = noteDto.encTitle,
                 encBody = noteDto.encBody,
