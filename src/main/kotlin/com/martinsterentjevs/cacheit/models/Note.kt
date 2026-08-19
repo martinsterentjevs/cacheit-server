@@ -16,7 +16,7 @@ import java.util.UUID
 @Table(name = "notes")
 class Note(
     @Id
-    var noteId: UUID = UUID.randomUUID(),
+    var noteId: UUID,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     var account: Account,

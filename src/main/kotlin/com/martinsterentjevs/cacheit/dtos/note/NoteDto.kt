@@ -1,16 +1,21 @@
 package com.martinsterentjevs.cacheit.dtos.note
 
+import jakarta.validation.constraints.NotBlank
 import java.time.Instant
 import java.util.UUID
 
+
 data class NoteDto(
-    val noteId: UUID?,
+    //client supplied
+    val noteId: UUID,
     val userId: UUID,
     val lastModifiedAt: Instant,
     val isDeleted: Boolean,
+    @field:NotBlank
     val encTitle: String,
     val encBody: String?,
     val encDrawing: String?,
-    val lockedByDeviceId: UUID?, // clear on drawing save
-    val lockedAt: Instant? // clear on drawing save
+    // clear both on drawing save
+    val lockedByDeviceId: UUID?,
+    val lockedAt: Instant?
 )
