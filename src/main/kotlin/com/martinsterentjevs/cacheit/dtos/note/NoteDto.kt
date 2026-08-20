@@ -11,6 +11,7 @@ data class NoteDto(
     val userId: UUID,
     val lastModifiedAt: Instant,
     val isDeleted: Boolean,
+    val hasHistory: Boolean,
     @field:NotBlank
     val encTitle: String,
     val encBody: String?,

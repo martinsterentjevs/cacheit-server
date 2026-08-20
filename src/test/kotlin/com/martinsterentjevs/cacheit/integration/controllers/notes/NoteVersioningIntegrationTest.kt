@@ -172,4 +172,26 @@ class NoteVersioningIntegrationTest : NoteControllerTestBase() {
         post("/notes/${note.noteId}/restore/${UUID.randomUUID()}", headers = bearer(session.accessToken))
             .expectStatus(HttpStatus.NOT_FOUND)
     }
+    @Test
+    fun `update note sets hasHistory to true after a second save`() {
+        val (_, session) = registerAndAuthenticate()
+        val note = createNote(session.accessToken, encTitle = "Original") // 1st save -> 1 version
+
+        val updated =
+            put(
+                "/notes/${note.noteId}",
+                noteDtoFor(noteId = note.noteId!!, encTitle = "Updated"), // 2nd save -> 2 versions
+                headers = bearer(session.accessToken)
+            ).expectStatus(HttpStatus.OK).body<NoteDto>()
+
+        assertThat(updated.hasHistory).isTrue()
+    }
+
+    @Test
+    fun `a note with only its initial save reports hasHistory as false`() {
+        val (_, session) = registerAndAuthenticate()
+        val note = createNote(session.accessToken) // 1 version - the create itself
+
+        assertThat(note.hasHistory).isFalse()
+    }
 }

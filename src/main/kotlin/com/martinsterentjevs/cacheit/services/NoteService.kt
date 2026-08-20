@@ -258,6 +258,7 @@ class NoteService(
             userId = account.userId,
             lastModifiedAt = lastModifiedAt,
             isDeleted = isDeleted,
+            hasHistory = noteVersionRepository.findAllByNoteNoteIdOrderByCreatedAtDesc(noteId).count() > 1,
             encTitle = encTitle,
             encBody = encBody,
             encDrawing = encDrawing,
