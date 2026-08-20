@@ -64,13 +64,15 @@ abstract class NoteControllerTestBase : BaseControllerTest() {
         userId: UUID = UUID.randomUUID(),
         encTitle: String = "Test note",
         encBody: String? = null,
-        encDrawing: String? = null
+        encDrawing: String? = null,
+        hasHistory: Boolean = false
     ): NoteDto =
         NoteDto(
             noteId = noteId,
             userId = userId, // discarded server-side — server derives the real owner from the token
             lastModifiedAt = Instant.now(),
             isDeleted = false,
+            hasHistory = hasHistory,
             encTitle = encTitle,
             encBody = encBody,
             encDrawing = encDrawing,

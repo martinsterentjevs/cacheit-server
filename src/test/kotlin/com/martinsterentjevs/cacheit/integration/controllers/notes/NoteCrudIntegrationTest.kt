@@ -79,6 +79,7 @@ class NoteCrudIntegrationTest : NoteControllerTestBase() {
           "userId": "${UUID.randomUUID()}",
           "lastModifiedAt": "${Instant.now()}",
           "isDeleted": false,
+          "hasHistory": false,
           "encTitle": "some-title",
           "encBody": null,
           "encDrawing": null,

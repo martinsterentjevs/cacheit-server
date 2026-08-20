@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.util.Optional
@@ -97,12 +98,14 @@ class NoteServiceTest {
         noteId: UUID,
         encTitle: String = "Title",
         encBody: String? = null,
-        encDrawing: String? = null
+        encDrawing: String? = null,
+        hasHistory: Boolean = false
     ) = NoteDto(
         noteId = noteId,
         userId = ownerId,
         lastModifiedAt = Instant.now(),
         isDeleted = false,
+        hasHistory = hasHistory,
         encTitle = encTitle,
         encBody = encBody,
         encDrawing = encDrawing,
@@ -119,6 +122,12 @@ class NoteServiceTest {
         every { userService.getRequestIdentity(any()) } returns identity
     }
 
+    @BeforeEach
+    fun setUp() {
+        every {
+            noteVersionRepository.findAllByNoteNoteIdOrderByCreatedAtDesc(any())
+        } returns emptyList()
+    }
     // -- getNotes --
 
     @Test
