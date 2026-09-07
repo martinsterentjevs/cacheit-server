@@ -28,6 +28,7 @@ class NoteLockingIntegrationTest : NoteControllerTestBase() {
 
         post("/notes/${note.noteId}/lock", headers = bearer(session.accessToken)).expectStatus(HttpStatus.OK)
     }
+
     @Test
     fun `re-acquiring a lock from the same device refreshes lockedAt`() {
         val (_, session) = registerAndAuthenticate()
@@ -47,6 +48,7 @@ class NoteLockingIntegrationTest : NoteControllerTestBase() {
 
         assertThat(secondLock.lockedAt).isAfter(firstLock.lockedAt)
     }
+
     @Test
     fun `acquiring a lock held by a different device is rejected`() {
         val (registration, firstDeviceSession) = registerAndAuthenticate()

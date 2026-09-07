@@ -4,9 +4,8 @@ import jakarta.validation.constraints.NotBlank
 import java.time.Instant
 import java.util.UUID
 
-
 data class NoteDto(
-    //client supplied
+    // client supplied
     val noteId: UUID,
     val userId: UUID,
     val lastModifiedAt: Instant,

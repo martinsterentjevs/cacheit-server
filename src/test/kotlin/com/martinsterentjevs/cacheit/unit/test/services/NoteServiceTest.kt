@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.context.ApplicationEventPublisher
 import java.time.Instant
 import java.util.Optional
 import java.util.UUID
@@ -36,13 +37,14 @@ class NoteServiceTest {
     private val userService = mockk<UserService>()
     private val noteVersionRepository = mockk<NoteVersionRepository>()
     private val deviceSessionRepository = mockk<DeviceSessionRepository>()
-
+    private val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
     private val noteService =
         NoteService(
             noteRepository,
             userService,
             noteVersionRepository,
-            deviceSessionRepository
+            deviceSessionRepository,
+            eventPublisher = eventPublisher
         )
 
     private val ownerId = UUID.randomUUID()

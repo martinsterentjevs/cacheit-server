@@ -25,7 +25,7 @@ class UserService(
     private val accountRepository: AccountRepository,
     private val sessionService: SessionService,
     private val passwordEncoder: PasswordEncoder,
-    private val secretsManager: SecretsManager,
+    private val secretsManager: SecretsManager
 ) {
     fun authenticateUser(login: LoginDto): AccountSessionDto {
         val account =

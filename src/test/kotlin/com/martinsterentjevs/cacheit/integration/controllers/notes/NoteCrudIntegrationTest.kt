@@ -32,39 +32,42 @@ class NoteCrudIntegrationTest : NoteControllerTestBase() {
     fun `add note returns 400 on missing noteId`() {
         val (_, session) = registerAndAuthenticate()
 
-        val rawBody = """
-        {
-          "userId": "${UUID.randomUUID()}",
-          "lastModifiedAt": "${Instant.now()}",
-          "isDeleted": false,
-          "encTitle": "some-title",
-          "encBody": null,
-          "encDrawing": null,
-          "lockedByDeviceId": null,
-          "lockedAt": null
-        }
-    """.trimIndent()
+        val rawBody =
+            """
+            {
+              "userId": "${UUID.randomUUID()}",
+              "lastModifiedAt": "${Instant.now()}",
+              "isDeleted": false,
+              "encTitle": "some-title",
+              "encBody": null,
+              "encDrawing": null,
+              "lockedByDeviceId": null,
+              "lockedAt": null
+            }
+            """.trimIndent()
 
         post(notesPath, rawBody, headers = bearer(session.accessToken))
             .expectStatus(HttpStatus.BAD_REQUEST)
     }
+
     @Test
     fun `add note returns 400 on malformed noteId`() {
         val (_, session) = registerAndAuthenticate()
 
-        val rawBody = """
-        {
-          "noteId": "not-a-uuid",
-          "userId": "${UUID.randomUUID()}",
-          "lastModifiedAt": "${Instant.now()}",
-          "isDeleted": false,
-          "encTitle": "some-title",
-          "encBody": null,
-          "encDrawing": null,
-          "lockedByDeviceId": null,
-          "lockedAt": null
-        }
-    """.trimIndent()
+        val rawBody =
+            """
+            {
+              "noteId": "not-a-uuid",
+              "userId": "${UUID.randomUUID()}",
+              "lastModifiedAt": "${Instant.now()}",
+              "isDeleted": false,
+              "encTitle": "some-title",
+              "encBody": null,
+              "encDrawing": null,
+              "lockedByDeviceId": null,
+              "lockedAt": null
+            }
+            """.trimIndent()
 
         post(notesPath, rawBody, headers = bearer(session.accessToken)).expectStatus(HttpStatus.BAD_REQUEST)
     }
@@ -73,35 +76,41 @@ class NoteCrudIntegrationTest : NoteControllerTestBase() {
     fun `add note returns 400 on explicit null noteId`() {
         val (_, session) = registerAndAuthenticate()
 
-        val rawBody = """
-        {
-          "noteId": null,
-          "userId": "${UUID.randomUUID()}",
-          "lastModifiedAt": "${Instant.now()}",
-          "isDeleted": false,
-          "hasHistory": false,
-          "encTitle": "some-title",
-          "encBody": null,
-          "encDrawing": null,
-          "lockedByDeviceId": null,
-          "lockedAt": null
-        }
-    """.trimIndent()
+        val rawBody =
+            """
+            {
+              "noteId": null,
+              "userId": "${UUID.randomUUID()}",
+              "lastModifiedAt": "${Instant.now()}",
+              "isDeleted": false,
+              "hasHistory": false,
+              "encTitle": "some-title",
+              "encBody": null,
+              "encDrawing": null,
+              "lockedByDeviceId": null,
+              "lockedAt": null
+            }
+            """.trimIndent()
 
         post(notesPath, rawBody, headers = bearer(session.accessToken)).expectStatus(HttpStatus.BAD_REQUEST)
     }
+
     @Test
     fun `add note ignores a client-supplied userId and uses the authenticated account`() {
         val (_, session) = registerAndAuthenticate()
         val spoofedUserId = UUID.randomUUID() // belongs to nobody
 
         val response =
-            post(notesPath, noteDtoFor(userId = spoofedUserId, encTitle = "test"), headers = bearer(session.accessToken))
-                .expectStatus(HttpStatus.CREATED)
+            post(
+                notesPath,
+                noteDtoFor(userId = spoofedUserId, encTitle = "test"),
+                headers = bearer(session.accessToken)
+            ).expectStatus(HttpStatus.CREATED)
                 .body<NoteDto>()
 
         assertThat(response.userId).isNotEqualTo(spoofedUserId)
     }
+
     @Test
     fun `get notes returns an empty list for a fresh account`() {
         val (_, session) = registerAndAuthenticate()
@@ -173,6 +182,7 @@ class NoteCrudIntegrationTest : NoteControllerTestBase() {
             headers = bearer(session.accessToken)
         ).expectStatus(HttpStatus.NOT_FOUND)
     }
+
     @Test
     fun `update note uses the body's noteId, not the path noteId`() {
         val (_, session) = registerAndAuthenticate()

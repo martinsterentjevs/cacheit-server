@@ -31,16 +31,17 @@ class UserServiceTest {
     private val passwordEncoder = mockk<PasswordEncoder>()
     private val secretsManager = mockk<SecretsManager>()
     private val userService: UserService
+
     init {
-    every { secretsManager.isSingleUser() } returns false
-    userService =
-        UserService(
-            accountRepository,
-            sessionService,
-            passwordEncoder,
-            secretsManager
-        )
-}
+        every { secretsManager.isSingleUser() } returns false
+        userService =
+            UserService(
+                accountRepository,
+                sessionService,
+                passwordEncoder,
+                secretsManager
+            )
+    }
     // -- registerUser --
 
     @Test

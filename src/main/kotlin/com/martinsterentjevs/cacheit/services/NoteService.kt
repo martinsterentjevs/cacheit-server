@@ -5,6 +5,11 @@ import com.martinsterentjevs.cacheit.dtos.note.SyncRequestDto
 import com.martinsterentjevs.cacheit.dtos.note.SyncResponseDto
 import com.martinsterentjevs.cacheit.dtos.note.version.NoteVersionDto
 import com.martinsterentjevs.cacheit.dtos.note.version.NoteVersionMeta
+import com.martinsterentjevs.cacheit.events.NoteDeletedEvent
+import com.martinsterentjevs.cacheit.events.NoteLockAcquiredEvent
+import com.martinsterentjevs.cacheit.events.NoteLockReleasedEvent
+import com.martinsterentjevs.cacheit.events.NoteRestoredEvent
+import com.martinsterentjevs.cacheit.events.NoteUpdatedEvent
 import com.martinsterentjevs.cacheit.exceptions.InvalidSessionException
 import com.martinsterentjevs.cacheit.exceptions.NoteLockedException
 import com.martinsterentjevs.cacheit.exceptions.NoteNotFoundException
@@ -17,6 +22,8 @@ import com.martinsterentjevs.cacheit.models.NoteRepository
 import com.martinsterentjevs.cacheit.models.NoteVersion
 import com.martinsterentjevs.cacheit.models.NoteVersionRepository
 import com.martinsterentjevs.cacheit.models.auth.RequestIdentity
+import jakarta.transaction.Transactional
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.UUID
@@ -26,7 +33,8 @@ class NoteService(
     private val noteRepository: NoteRepository,
     private val userService: UserService,
     private val noteVersionRepository: NoteVersionRepository,
-    private val deviceSessionRepository: DeviceSessionRepository
+    private val deviceSessionRepository: DeviceSessionRepository,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
     companion object {
         // Deliberately independent of the access token TTL, not shared/aliased with it — see
@@ -65,6 +73,7 @@ class NoteService(
         return note.toDto()
     }
 
+    @Transactional
     fun updateNote(
         incoming: NoteDto,
         bearer: String
@@ -80,9 +89,14 @@ class NoteService(
         note.lockedAt = null
         retireCurrentVersionAndSnapshot(note, device)
 
-        return noteRepository.save(note).toDto()
+        val saved = noteRepository.save(note)
+        eventPublisher.publishEvent(
+            NoteUpdatedEvent(userId = identity.account.userId, noteId = saved.noteId, lastModifiedAt = Instant.now())
+        )
+        return saved.toDto()
     }
 
+    @Transactional
     fun deleteNote(
         noteId: UUID,
         bearer: String
@@ -94,6 +108,10 @@ class NoteService(
         note.lastModifiedAt = Instant.now()
         retireCurrentVersionAndSnapshot(note, device)
         noteRepository.save(note)
+
+        eventPublisher.publishEvent(
+            NoteDeletedEvent(userId = identity.account.userId, noteId = note.noteId, lastModifiedAt = Instant.now())
+        )
     }
 
     fun getSyncDelta(
@@ -123,6 +141,7 @@ class NoteService(
         )
     }
 
+    @Transactional
     fun acquireDrawingLock(
         noteId: UUID,
         bearer: String
@@ -139,16 +158,29 @@ class NoteService(
 
         note.lockedByDevice = device
         note.lockedAt = Instant.now()
-        return noteRepository.save(note).toDto()
+
+        val newNote = noteRepository.save(note)
+        eventPublisher.publishEvent(
+            NoteLockAcquiredEvent(
+                userId = identity.account.userId,
+                noteId = note.noteId,
+                lockedByDeviceId = identity.deviceId
+            )
+        )
+        return newNote.toDto()
     }
 
+    @Transactional
     fun releaseDrawingLock(
         noteId: UUID,
         bearer: String
     ) {
-        val (note, _) = requireOwnedNote(noteId, bearer)
+        val (note, identity) = requireOwnedNote(noteId, bearer)
         note.lockedByDevice = null
         note.lockedAt = null
+
+        eventPublisher.publishEvent(NoteLockReleasedEvent(userId = identity.account.userId, noteId = note.noteId))
+
         noteRepository.save(note)
     }
 
@@ -169,6 +201,7 @@ class NoteService(
         return findOwnedVersion(noteId, versionId).toDto()
     }
 
+    @Transactional
     fun restoreVersion(
         noteId: UUID,
         versionId: UUID,
@@ -184,6 +217,13 @@ class NoteService(
         note.lastModifiedAt = Instant.now()
         retireCurrentVersionAndSnapshot(note, device)
 
+        eventPublisher.publishEvent(
+            NoteRestoredEvent(
+                userId = identity.account.userId,
+                noteId = note.noteId,
+                lastModifiedAt = note.lastModifiedAt
+            )
+        )
         return noteRepository.save(note).toDto()
     }
 
