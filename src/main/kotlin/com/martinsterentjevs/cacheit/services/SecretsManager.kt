@@ -17,15 +17,22 @@ class SecretsManager(
         require(getDatabaseName().isNotEmpty()) { "POSTGRES_DB cannot be empty" }
         require(getDbPassword().isNotEmpty()) { "POSTGRES_PASSWORD cannot be empty" }
     }
-    fun getHmacSecret():String = environment.getProperty("HMAC_SECRET")?: throw SecretNotFoundException("HMAC Key not found")
-    fun getJwtSecret():String = environment.getProperty("JWT_SECRET")?: throw SecretNotFoundException("JWT Secret not found")
+
+    fun getHmacSecret(): String =
+        environment.getProperty("HMAC_SECRET") ?: throw SecretNotFoundException("HMAC Key not found")
+
+    fun getJwtSecret(): String =
+        environment.getProperty("JWT_SECRET") ?: throw SecretNotFoundException("JWT Secret not found")
+
     fun isSingleUser(): Boolean = environment.getProperty("IS_SINGLE_USER")?.toBoolean() ?: false
 
-    //Database keys
-    fun getDatabaseName(): String = environment.getProperty("POSTGRES_DB")?: throw SecretNotFoundException("Database name not set")
-    fun getDbUsername():String = environment.getProperty("POSTGRES_USER")?: throw SecretNotFoundException("DB Username not set")
-    fun getDbPassword():String = environment.getProperty("POSTGRES_PASSWORD")?: throw SecretNotFoundException("DB Password not set")
+    // Database keys
+    fun getDatabaseName(): String =
+        environment.getProperty("POSTGRES_DB") ?: throw SecretNotFoundException("Database name not set")
 
+    fun getDbUsername(): String =
+        environment.getProperty("POSTGRES_USER") ?: throw SecretNotFoundException("DB Username not set")
 
-
+    fun getDbPassword(): String =
+        environment.getProperty("POSTGRES_PASSWORD") ?: throw SecretNotFoundException("DB Password not set")
 }

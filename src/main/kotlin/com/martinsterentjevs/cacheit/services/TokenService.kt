@@ -13,7 +13,7 @@ import javax.crypto.spec.SecretKeySpec
 @Service
 class TokenService(
     private val secretsManager: SecretsManager,
-    private val secret:String = secretsManager.getJwtSecret()
+    secret: String = secretsManager.getJwtSecret()
 ) {
     init {
         require(secret.length >= 32) { "JWT_SECRET must be at least 32 characters long" }
@@ -68,7 +68,7 @@ class TokenService(
                 .build()
                 .parseSignedClaims(cleanToken)
                 .payload
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             throw InvalidTokenException("Invalid or expired JWT token") // Centralized failure point
         }
     }
@@ -115,7 +115,7 @@ class TokenService(
         } catch (e: InvalidTokenException) {
             // If validation fails, treat it as extraction failure for this helper
             throw e
-        } catch (e: IllegalStateException) {
+        } catch (_: IllegalStateException) {
             // Specific case of missing claim/parsing error -> return null
             null
         }
