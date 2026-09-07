@@ -172,6 +172,7 @@ class NoteVersioningIntegrationTest : NoteControllerTestBase() {
         post("/notes/${note.noteId}/restore/${UUID.randomUUID()}", headers = bearer(session.accessToken))
             .expectStatus(HttpStatus.NOT_FOUND)
     }
+
     @Test
     fun `update note sets hasHistory to true after a second save`() {
         val (_, session) = registerAndAuthenticate()

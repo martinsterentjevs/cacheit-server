@@ -22,7 +22,7 @@ import java.util.UUID
 class SessionServiceTest {
     private val deviceSessionRepo = mockk<DeviceSessionRepository>()
     private val secretsManager = mockk<SecretsManager>()
-    private val tokenService = TokenService(secretsManager,secret = "test-secret-at-least-32-characters-long")
+    private val tokenService = TokenService(secretsManager, secret = "test-secret-at-least-32-characters-long")
     private val sessionService = SessionService(deviceSessionRepo, tokenService)
 
     @Test

@@ -13,7 +13,7 @@ import java.util.UUID
 
 class TokenServiceTest {
     private val secretsManager = mockk<SecretsManager>()
-    private val tokenService = TokenService(secretsManager,secret = "test-secret-at-least-32-characters-long")
+    private val tokenService = TokenService(secretsManager, secret = "test-secret-at-least-32-characters-long")
 
     @Test
     fun `generateSessionTokens returns a valid jwt and a distinct opaque refresh token`() {
@@ -45,7 +45,7 @@ class TokenServiceTest {
 
     @Test
     fun `signing key construction fails fast when secret is under 32 characters`() {
-        assertThrows(IllegalArgumentException::class.java) { TokenService(secretsManager,secret = "short") }
+        assertThrows(IllegalArgumentException::class.java) { TokenService(secretsManager, secret = "short") }
     }
 
     // Helper functions
