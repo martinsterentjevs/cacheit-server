@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.martinsterentjevs.cacheit.dtos.websockets.WsNudgeDto
 import com.martinsterentjevs.cacheit.integration.BaseIntegrationTest
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -19,8 +20,6 @@ import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter
 import org.springframework.web.socket.WebSocketHttpHeaders
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.messaging.WebSocketStompClient
-import org.springframework.web.socket.sockjs.client.SockJsClient
-import org.springframework.web.socket.sockjs.client.WebSocketTransport
 import java.lang.reflect.Type
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
@@ -38,19 +37,11 @@ abstract class WsIntegrationTestBase : BaseIntegrationTest() {
 
     private val sessions = CopyOnWriteArrayList<StompSession>()
 
-    protected fun wsUrl(): String = "http://localhost:$port/ws/sync"
+    protected fun wsUrl(): String = "ws://localhost:$port/ws/sync"
 
-    @org.junit.jupiter.api.BeforeEach
+    @BeforeEach
     fun setUpStompClient() {
-        val transports =
-            listOf(
-                WebSocketTransport(StandardWebSocketClient())
-            )
-
-        stompClient =
-            WebSocketStompClient(
-                SockJsClient(transports)
-            )
+        stompClient = WebSocketStompClient(StandardWebSocketClient())
 
         val objectMapper =
             ObjectMapper()
