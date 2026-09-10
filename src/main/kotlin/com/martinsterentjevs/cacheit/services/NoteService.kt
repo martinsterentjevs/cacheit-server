@@ -73,6 +73,14 @@ class NoteService(
         return note.toDto()
     }
 
+    fun getNote(
+        noteId: UUID,
+        bearer: String
+    ): NoteDto {
+        val (note, _) = requireOwnedNote(noteId, bearer)
+        return note.toDto()
+    }
+
     @Transactional
     fun updateNote(
         incoming: NoteDto,

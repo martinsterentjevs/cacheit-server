@@ -36,3 +36,8 @@ data class NoteLockReleasedEvent(
     override val noteId: UUID,
     override val userId: UUID
 ) : NoteDomainEvent()
+
+// Account events
+data class AccountTerminatedEvent(
+    val userId: UUID
+)

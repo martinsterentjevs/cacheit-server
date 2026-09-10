@@ -32,4 +32,8 @@ interface DeviceSessionRepository : JpaRepository<DeviceSession, UUID> {
     fun findByDeviceId(deviceId: UUID): DeviceSession?
 
     fun findByRefreshToken(refreshToken: String): DeviceSession?
+
+    fun findAllByAccountUserId(userId: UUID): List<DeviceSession>
+
+    fun deleteAllByAccountUserId(userId: UUID)
 }
