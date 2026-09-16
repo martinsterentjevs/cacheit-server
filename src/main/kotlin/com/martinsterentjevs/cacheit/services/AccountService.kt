@@ -1,5 +1,6 @@
 package com.martinsterentjevs.cacheit.services
 
+import com.martinsterentjevs.cacheit.dtos.account.AccountProfileDto
 import com.martinsterentjevs.cacheit.dtos.account.DeviceSessionDto
 import com.martinsterentjevs.cacheit.events.AccountTerminatedEvent
 import com.martinsterentjevs.cacheit.exceptions.DeviceNotFoundException
@@ -40,6 +41,15 @@ class AccountService(
         return deviceSessionRepository
             .findAllByAccountUserId(identity.account.userId)
             .map { it.toDto(isCurrentDevice = it.deviceId == identity.deviceId) }
+    }
+
+    fun getProfile(bearer: String): AccountProfileDto {
+        val identity = userService.getRequestIdentity(bearer)
+        return AccountProfileDto(
+            accountHolder = identity.account.accountHolder,
+            username = identity.account.username,
+            email = identity.account.email
+        )
     }
 
     @Transactional

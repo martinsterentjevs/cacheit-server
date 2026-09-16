@@ -1,5 +1,6 @@
 package com.martinsterentjevs.cacheit.controllers
 
+import com.martinsterentjevs.cacheit.dtos.account.AccountProfileDto
 import com.martinsterentjevs.cacheit.dtos.account.DeviceSessionDto
 import com.martinsterentjevs.cacheit.services.AccountService
 import org.springframework.http.HttpHeaders
@@ -28,6 +29,11 @@ class AccountController(
     fun listDevices(
         @RequestHeader(HttpHeaders.AUTHORIZATION) authorization: String
     ): List<DeviceSessionDto> = accountService.listDevices(authorization)
+
+    @GetMapping
+    fun getAccount(
+        @RequestHeader(HttpHeaders.AUTHORIZATION) authorization: String
+    ): AccountProfileDto = accountService.getProfile(authorization)
 
     @DeleteMapping("/devices/{deviceId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
