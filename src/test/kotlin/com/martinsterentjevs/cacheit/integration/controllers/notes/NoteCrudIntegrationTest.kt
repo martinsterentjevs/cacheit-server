@@ -245,4 +245,30 @@ class NoteCrudIntegrationTest : NoteControllerTestBase() {
             headers = bearer(session.accessToken)
         ).expectStatus(HttpStatus.NOT_FOUND)
     }
+
+    @Test
+    fun `getNote returns a single note owned by the caller`() {
+        val (_, session) = registerAndAuthenticate()
+        val note = createNote(session.accessToken, encTitle = "Mine")
+
+        val fetched =
+            get(
+                "$notesPath/${note.noteId}",
+                headers = bearer(session.accessToken)
+            ).expectStatus(HttpStatus.OK).body<NoteDto>()
+
+        assertThat(fetched.noteId).isEqualTo(note.noteId)
+    }
+
+    @Test
+    fun `getNote rejects a caller who does not own the note`() {
+        val (_, ownerSession) = registerAndAuthenticate()
+        val note = createNote(ownerSession.accessToken)
+        val (_, otherSession) = registerAndAuthenticate()
+
+        get(
+            "$notesPath/${note.noteId}",
+            headers = bearer(otherSession.accessToken)
+        ).expectStatus(HttpStatus.FORBIDDEN)
+    }
 }

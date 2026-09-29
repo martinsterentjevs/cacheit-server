@@ -1,7 +1,10 @@
 package com.martinsterentjevs.cacheit.services
 
+import com.martinsterentjevs.cacheit.dtos.websockets.WsAccountSignalDto
+import com.martinsterentjevs.cacheit.dtos.websockets.WsAccountSignalType
 import com.martinsterentjevs.cacheit.dtos.websockets.WsNudgeDto
 import com.martinsterentjevs.cacheit.dtos.websockets.WsNudgeType
+import com.martinsterentjevs.cacheit.events.AccountTerminatedEvent
 import com.martinsterentjevs.cacheit.events.NoteDeletedEvent
 import com.martinsterentjevs.cacheit.events.NoteLockAcquiredEvent
 import com.martinsterentjevs.cacheit.events.NoteLockReleasedEvent
@@ -71,6 +74,14 @@ class NudgeEventListener(
                 type = WsNudgeType.NOTE_LOCK_RELEASED,
                 noteId = event.noteId
             )
+        )
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun onAccountTerminated(event: AccountTerminatedEvent) {
+        nudgeService.sendAccountSignal(
+            event.userId.toString(),
+            WsAccountSignalDto(WsAccountSignalType.ACCOUNT_TERMINATED)
         )
     }
 }

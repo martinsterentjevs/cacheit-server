@@ -30,7 +30,7 @@ class WebSocketsConfig(
             .addEndpoint("/ws/sync")
             .addInterceptors(JwtHandshakeInterceptor(tokenService))
             .setHandshakeHandler(JwtHandshakeHandler())
-            .withSockJS()
+        // NOTICE: SockJS removed - no browser integrations needed, native clients only.
     }
 
     override fun configureMessageConverters(messageConverters: MutableList<MessageConverter>): Boolean {

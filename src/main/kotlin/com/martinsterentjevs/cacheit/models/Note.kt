@@ -53,6 +53,8 @@ interface NoteRepository : JpaRepository<Note, UUID> {
 
     fun findByNoteIdAndIsDeletedFalse(noteId: UUID): Note?
 
+    fun deleteAllByAccountUserId(userId: UUID)
+
     fun findAllByLockedByDeviceDeviceId(deviceId: UUID): List<Note>
 
     fun findAllByLockedAtBefore(cutoff: Instant): List<Note>

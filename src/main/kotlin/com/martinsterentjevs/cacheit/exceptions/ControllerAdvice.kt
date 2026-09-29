@@ -77,6 +77,11 @@ class ControllerAdvice {
     fun handleNoteVersionNotFound(ex: NoteVersionNotFoundException): ErrorResponse =
         ErrorResponse("NOTE_VERSION_NOT_FOUND", ex.message ?: "Note version requested does not exist.")
 
+    @ExceptionHandler(DeviceNotFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleDeviceNotFound(ex: DeviceNotFoundException): ErrorResponse =
+        ErrorResponse("DEVICE_NOT_FOUND", ex.message ?: "Couldn't find device by ID ")
+
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleUnexpected(ex: Exception): ErrorResponse {

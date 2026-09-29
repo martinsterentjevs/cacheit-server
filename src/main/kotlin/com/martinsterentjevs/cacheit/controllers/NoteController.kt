@@ -30,6 +30,12 @@ class NoteController(
         @RequestHeader(HttpHeaders.AUTHORIZATION) authorization: String
     ): List<NoteDto> = noteService.getNotes(authorization)
 
+    @GetMapping("/{noteId}")
+    fun getNote(
+        @PathVariable noteId: UUID,
+        @RequestHeader(HttpHeaders.AUTHORIZATION) authorization: String
+    ): NoteDto = noteService.getNote(noteId, authorization)
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun addNote(

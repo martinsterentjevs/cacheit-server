@@ -58,3 +58,8 @@ class SecretNotFoundException(
 class SecretValidationException(
     message: String = "Secret validation failed."
 ) : RuntimeException(message)
+
+// Device - not found
+class DeviceNotFoundException(
+    message: String = "Failed to find device by id requested"
+) : RuntimeException(message)

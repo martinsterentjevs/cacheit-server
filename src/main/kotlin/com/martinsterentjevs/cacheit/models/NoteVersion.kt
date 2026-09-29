@@ -45,4 +45,6 @@ interface NoteVersionRepository : JpaRepository<NoteVersion, UUID> {
     fun findAllByNoteNoteIdOrderByCreatedAtDesc(noteId: UUID): List<NoteVersion>
 
     fun deleteByCreatedAtBefore(cutoff: Instant): Long
+
+    fun deleteAllByNoteAccountUserId(userId: UUID)
 }
