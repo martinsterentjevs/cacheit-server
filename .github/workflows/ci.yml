@@ -34,14 +34,6 @@ jobs:
       - name: Unit tests
         run: ./gradlew test --no-daemon
 
-      # Confirm whether this repo actually has a separate `integrationTest`
-      # source set for the Testcontainers tests, or whether they run inside
-      # plain `test` above. If there's no such task this step fails loud
-      # ("task not found") rather than silently skipping — fix by either
-      # adding the source set or deleting this step, don't leave it guessing.
-      - name: Integration tests (Testcontainers)
-        run: ./gradlew integrationTest --no-daemon
-
       - name: Upload test reports on failure
         if: failure()
         uses: actions/upload-artifact@v4
