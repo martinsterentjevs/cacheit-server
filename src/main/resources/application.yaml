@@ -1,3 +1,4 @@
+# application.yaml
 spring:
   application:
     name: cacheit
@@ -9,3 +10,14 @@ spring:
     endpoint:
       health:
         show-details: never
+  datasource:
+    url: jdbc:postgresql://db:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
